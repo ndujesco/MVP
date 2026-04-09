@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP — FNDIG</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="portal-login-page">
+
+    <!-- Left panel -->
+    <div class="portal-login-panel">
+        <div class="login-panel-brand">
+            <div class="icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+            </div>
+            <span>FNDIG</span>
+        </div>
+
+        <div class="login-panel-content">
+            <h2>Verify your<br>SIM card</h2>
+            <p>A one-time code has been sent to your registered phone number. Enter it to prove you have physical access to the SIM linked to your NIN.</p>
+        </div>
+
+        <div class="login-trust">
+            <div class="login-trust-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                NIN verified with NIMC
+            </div>
+            <div class="login-trust-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                Identity records fetched
+            </div>
+            <div class="login-trust-item" style="color:rgba(255,255,255,0.85);">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                SIM OTP — pending
+            </div>
+        </div>
+    </div>
+
+    <!-- Right form side -->
+    <div class="portal-form-side">
+        <div class="portal-login-card">
+            <div class="accent-bar" style="background:#f59e0b;"></div>
+            <h1>Enter your OTP</h1>
+            <p>
+                A one-time code was sent to
+                <strong style="color:var(--text); font-family:monospace;">{{ masked_phone }}</strong>.
+            </p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('citizen_verify_otp') if signup else url_for('citizen_otp') }}">
+                <div class="form-group">
+                    <label>OTP Code</label>
+                    <input type="text" name="code" required maxlength="6" autofocus
+                           placeholder="000000"
+                           style="font-size:2rem; letter-spacing:0.35em; text-align:center; font-family:monospace; font-weight:700; padding:0.75rem;">
+                </div>
+                <button type="submit" class="btn btn-green" style="width:100%; justify-content:center; padding:0.7rem; margin-top:0.25rem;">
+                    Complete Sign-In
+                </button>
+            </form>
+
+            <div style="margin-top:1.25rem; text-align:center; font-size:0.83rem;">
+                <a href="{{ url_for('citizen_portal') }}" style="color:var(--text-subtle); text-decoration:none;">
+                    ← Back to sign in
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

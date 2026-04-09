@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetching Identity — FNDIG</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .fetch-page {
+            min-height: 100vh;
+            background: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .fetch-card {
+            width: 100%;
+            max-width: 560px;
+            text-align: center;
+        }
+        .fetch-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2.5rem;
+        }
+        .fetch-logo .icon {
+            width: 42px; height: 42px;
+            background: linear-gradient(135deg, #059669, #10b981);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .fetch-logo .icon svg { width: 22px; height: 22px; color: white; }
+        .fetch-logo span { font-size: 1.2rem; font-weight: 800; color: white; letter-spacing: -0.02em; }
+
+        .fetch-title {
+            font-size: 1.375rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+        .fetch-sub {
+            font-size: 0.875rem;
+            color: rgba(255,255,255,0.45);
+            margin-bottom: 2.5rem;
+        }
+        .fetch-sub code {
+            color: #34d399;
+            font-family: monospace;
+            background: rgba(52,211,153,0.1);
+            padding: 0.1em 0.4em;
+            border-radius: 4px;
+        }
+
+        .source-list { list-style: none; margin-bottom: 2rem; }
+        .source-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            opacity: 0;
+            transform: translateX(-12px);
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+        .source-item.visible { opacity: 1; transform: translateX(0); }
+
+        .source-indicator {
+            width: 28px; height: 28px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .source-indicator.loading {
+            border: 2px solid rgba(255,255,255,0.15);
+            border-top-color: #34d399;
+            animation: spin 0.8s linear infinite;
+        }
+        .source-indicator.done {
+            background: rgba(52,211,153,0.2);
+            border: 2px solid #34d399;
+        }
+        .source-indicator.done svg { width: 13px; height: 13px; color: #34d399; }
+        .source-indicator.not-found {
+            background: rgba(251,191,36,0.15);
+            border: 2px solid #fbbf24;
+        }
+        .source-indicator.not-found svg { width: 13px; height: 13px; color: #fbbf24; }
+
+        .source-name { font-size: 0.8rem; font-weight: 600; color: rgba(255,255,255,0.85); flex: 1; text-align: left; }
+        .source-status { font-size: 0.72rem; color: rgba(255,255,255,0.35); min-width: 70px; text-align: right; }
+        .source-status.done-text { color: #34d399; }
+        .source-status.nf-text { color: #fbbf24; }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .progress-bar-wrap {
+            background: rgba(255,255,255,0.06);
+            border-radius: 10px;
+            height: 4px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #059669, #34d399);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 3.5s linear;
+        }
+        .fetch-footer {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.3);
+        }
+    </style>
+</head>
+<body>
+<div class="fetch-page">
+    <div class="fetch-card">
+        <div class="fetch-logo">
+            <div class="icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+            </div>
+            <span>FNDIG</span>
+        </div>
+
+        <div class="fetch-title">Querying government databases…</div>
+        <div class="fetch-sub">Building your federated profile for <code>{{ nin }}</code></div>
+
+        <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" id="progress"></div>
+        </div>
+
+        <ul class="source-list" id="source-list">
+            {% for src in sources %}
+            <li class="source-item" id="src-{{ loop.index }}" data-delay="{{ (loop.index0 * 450) + 200 }}">
+                <div class="source-indicator loading" id="ind-{{ loop.index }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display:none;" id="check-{{ loop.index }}">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display:none;" id="minus-{{ loop.index }}">
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                </div>
+                <span class="source-name">{{ src.label }}</span>
+                <span class="source-status" id="status-{{ loop.index }}">Querying…</span>
+            </li>
+            {% endfor %}
+        </ul>
+
+        <div class="fetch-footer">Secured by FNDIG federated identity layer · All queries are end-to-end encrypted</div>
+    </div>
+</div>
+
+<script>
+// Demo not-found indices (matches the profile data — FRSC index 6)
+const NOT_FOUND_INDICES = {{ not_found_indices | tojson if not_found_indices is defined else '[6]' }};
+
+const items = document.querySelectorAll('.source-item');
+const total = items.length;
+
+// Start progress bar
+setTimeout(() => {
+    document.getElementById('progress').style.width = '100%';
+}, 50);
+
+// Animate each source item appearing + completing
+items.forEach((item, i) => {
+    const delay = parseInt(item.dataset.delay);
+    const idx = i + 1;
+    const isNotFound = NOT_FOUND_INDICES.includes(idx);
+
+    // Appear
+    setTimeout(() => {
+        item.classList.add('visible');
+    }, delay);
+
+    // Complete (500ms after appearing)
+    setTimeout(() => {
+        const ind = document.getElementById(`ind-${idx}`);
+        const statusEl = document.getElementById(`status-${idx}`);
+        const checkEl = document.getElementById(`check-${idx}`);
+        const minusEl = document.getElementById(`minus-${idx}`);
+
+        ind.classList.remove('loading');
+        if (isNotFound) {
+            ind.classList.add('not-found');
+            minusEl.style.display = 'block';
+            statusEl.textContent = 'Not found';
+            statusEl.classList.add('nf-text');
+        } else {
+            ind.classList.add('done');
+            checkEl.style.display = 'block';
+            statusEl.textContent = 'Verified ✓';
+            statusEl.classList.add('done-text');
+        }
+    }, delay + 500);
+});
+
+// Redirect to confirm page after all items done
+const redirectDelay = parseInt(items[total - 1]?.dataset.delay || 3000) + 900;
+setTimeout(() => {
+    window.location.href = "{{ url_for('citizen_verify_otp') }}";
+}, redirectDelay);
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"import institution_demo; print\\('OK'\\)\")",
+      "Bash(python3 -c \"import institution_demo; print\\('OK'\\)\")",
+      "Bash(python3 -c ':*)",
+      "Bash(python3 -c \"import ast; ast.parse\\(open\\('app.py'\\).read\\(\\)\\); print\\('OK'\\)\")"
+    ]
+  }
+}

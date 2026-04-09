@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Identity — FNDIG</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="portal-shell">
+
+    <header class="portal-header">
+        <div class="portal-header-brand">
+            <div class="dot">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+            </div>
+            <strong>FNDIG Citizen Portal</strong>
+        </div>
+        <div class="portal-header-user">
+            <span class="citizen-name">
+                <strong>{{ citizen.first_name }} {{ citizen.last_name }}</strong>
+                &nbsp;·&nbsp;
+                <span style="font-family:monospace; font-size:0.83rem; color:var(--text-muted);">{{ citizen.national_id }}</span>
+            </span>
+            <a href="{{ url_for('citizen_logout') }}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+                Sign Out
+            </a>
+        </div>
+    </header>
+
+    <div class="portal-body">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}{% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}{% endif %}
+        {% endwith %}
+
+        <!-- Profile header card -->
+        <div class="card" style="margin-bottom:1.25rem;">
+            <div style="display:flex; align-items:center; gap:1rem; padding-bottom:1.25rem; margin-bottom:1.25rem; border-bottom:1px solid var(--border-subtle);">
+                <div style="width:56px; height:56px; background:linear-gradient(135deg,#059669,#34d399); border-radius:14px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                    </svg>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-size:1.3rem; font-weight:800; color:var(--text); letter-spacing:-0.02em; margin-bottom:0.2rem;">
+                        {{ citizen.first_name }} {% if profile.middle_name %}{{ profile.middle_name }} {% endif %}{{ citizen.last_name }}
+                    </div>
+                    <div style="display:flex; align-items:center; gap:0.625rem; flex-wrap:wrap;">
+                        <span style="font-family:monospace; font-size:0.83rem; color:var(--text-muted);">{{ citizen.national_id }}</span>
+                        <span class="badge badge-success">FNDIG Verified</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personal details grid -->
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem 2rem;">
+                <div>
+                    <div style="font-size:0.69rem; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--text-subtle); margin-bottom:0.2rem;">Date of Birth</div>
+                    <div style="font-size:0.94rem; font-weight:500; color:var(--text);">{{ profile.date_of_birth }}</div>
+                </div>
+                <div>
+                    <div style="font-size:0.69rem; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--text-subtle); margin-bottom:0.2rem;">Gender</div>
+                    <div style="font-size:0.94rem; font-weight:500; color:var(--text);">{{ profile.gender }}</div>
+                </div>
+                <div>
+                    <div style="font-size:0.69rem; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--text-subtle); margin-bottom:0.2rem;">Phone Number</div>
+                    <div style="font-size:0.94rem; font-weight:500; color:var(--text); font-family:monospace;">{{ citizen.phone or profile.phone }}</div>
+                </div>
+                <div>
+                    <div style="font-size:0.69rem; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--text-subtle); margin-bottom:0.2rem;">Email Address</div>
+                    <div style="font-size:0.94rem; font-weight:500; color:var(--text);">{{ citizen.email or profile.email or '—' }}</div>
+                </div>
+                <div>
+                    <div style="font-size:0.69rem; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--text-subtle); margin-bottom:0.2rem;">Residential Address</div>
+                    <div style="font-size:0.94rem; font-weight:500; color:var(--text);">{{ citizen.address or profile.address }}</div>
+                </div>
+                <div>
+                    <div style="font-size:0.69rem; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--text-subtle); margin-bottom:0.2rem;">State</div>
+                    <div style="font-size:0.94rem; font-weight:500; color:var(--text);">{{ profile.state_of_residence or profile.state }}</div>
+                </div>
+                <div>
+                    <div style="font-size:0.69rem; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--text-subtle); margin-bottom:0.2rem;">State of Origin</div>
+                    <div style="font-size:0.94rem; font-weight:500; color:var(--text);">{{ profile.state_of_origin or '—' }}</div>
+                </div>
+                <div>
+                    <div style="font-size:0.69rem; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--text-subtle); margin-bottom:0.2rem;">LGA</div>
+                    <div style="font-size:0.94rem; font-weight:500; color:var(--text);">{{ profile.lga or '—' }}</div>
+                </div>
+                <div>
+                    <div style="font-size:0.69rem; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--text-subtle); margin-bottom:0.2rem;">Nationality</div>
+                    <div style="font-size:0.94rem; font-weight:500; color:var(--text);">{{ profile.nationality }}</div>
+                </div>
+                <div>
+                    <div style="font-size:0.69rem; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--text-subtle); margin-bottom:0.2rem;">Marital Status</div>
+                    <div style="font-size:0.94rem; font-weight:500; color:var(--text);">{{ profile.marital_status }}</div>
+                </div>
+                <div>
+                    <div style="font-size:0.69rem; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--text-subtle); margin-bottom:0.2rem;">Occupation</div>
+                    <div style="font-size:0.94rem; font-weight:500; color:var(--text);">{{ profile.occupation }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Verified identity records -->
+        <div class="card">
+            <div style="font-size:0.875rem; font-weight:600; margin-bottom:1rem; padding-bottom:0.75rem; border-bottom:1px solid var(--border-subtle);">
+                Verified Identity Records
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:0.625rem;">
+                {% for src in profile.sources %}
+                <div style="display:flex; align-items:center; gap:0.625rem; padding:0.625rem 0.875rem;
+                            border:1px solid {{ '#bbf7d0' if src.status == 'verified' else '#e2e8f0' }};
+                            border-radius:8px;
+                            background:{{ '#f0fdf4' if src.status == 'verified' else '#fafafa' }};
+                            opacity:{{ '1' if src.status == 'verified' else '0.65' }};">
+                    <div style="width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+                                background:{{ '#dcfce7' if src.status == 'verified' else '#f1f5f9' }};">
+                        {% if src.status == 'verified' %}
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        {% else %}
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        {% endif %}
+                    </div>
+                    <div style="min-width:0;">
+                        <div style="font-size:0.78rem; font-weight:600; color:var(--text);">{{ src.label }}</div>
+                        <div style="font-size:0.7rem; color:var(--text-subtle); font-family:monospace;">
+                            {% if src.status == 'verified' %}{{ src.id }}{% else %}Not on record{% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

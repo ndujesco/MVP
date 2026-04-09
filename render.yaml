@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: mvp-fig-gateway
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mvp-fig-db
+          property: connectionString
+
+  - type: web
+    name: mvp-institution-portal
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn institution_demo:app
+    envVars:
+      - key: INSTITUTION_SECRET_KEY
+        generateValue: true
+      - key: FIG_GATEWAY_URL
+        sync: false  # Set this to your gateway's Render URL after first deploy
+      - key: INSTITUTION_API_KEY
+        sync: false  # Copy from gateway admin panel after first deploy
+
+databases:
+  - name: mvp-fig-db
+    plan: free

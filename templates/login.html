@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login — FIG Gateway</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="login-page">
+
+    <!-- Left branding panel -->
+    <div class="login-panel">
+        <div class="login-panel-brand">
+            <div class="icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+            </div>
+            <span>FIG Gateway</span>
+        </div>
+
+        <div class="login-panel-content">
+            <h2>Federated National<br>Digital Identity</h2>
+            <p>The central trust layer connecting citizens, institutions, and government identity systems — enabling instant, privacy-preserving verification at scale.</p>
+        </div>
+
+        <div class="login-trust">
+            <div class="login-trust-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                Zero-knowledge identity verification
+            </div>
+            <div class="login-trust-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                Citizen-controlled consent
+            </div>
+            <div class="login-trust-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                Full audit trail & compliance logs
+            </div>
+        </div>
+    </div>
+
+    <!-- Right form side -->
+    <div class="login-form-side">
+        <div class="login-card">
+            <div class="login-logo">
+                <h1>Admin Portal</h1>
+                <p>Sign in to manage the identity gateway</p>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            <form method="POST">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" name="username" required autofocus placeholder="Enter your username">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" required placeholder="Enter your password">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:0.65rem; margin-top:0.25rem;">
+                    Sign In
+                </button>
+            </form>
+
+            <div style="margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--border); text-align:center; font-size:0.83rem; color:var(--text-subtle);">
+                Not an admin?
+                <a href="{{ url_for('citizen_portal') }}" style="color:var(--accent); font-weight:500; text-decoration:none; margin-left:0.25rem;">Citizen Portal →</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
